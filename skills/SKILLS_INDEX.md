@@ -51,6 +51,14 @@ Explicit activation is 100% reliable. Automatic activation depends on keyword ma
 
 ---
 
+### 5. Curate Constitutions (`skills/curate-constitutions/SKILL.md`)
+
+**Keywords:** constitution, curate, project constitution, examples, GitHub, ai-agent-config
+**Use when:** Selecting and building a high-quality library of PROJECT_CONSTITUTION.md examples
+**What it covers:** Fetching from GitHub, scoring via rubric, filtering best examples, maintaining local constitution library, integration with PromptGen workflow
+
+---
+
 ## Adding New Skills
 
 1. Create `skills/your-skill/SKILL.md`
