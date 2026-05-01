@@ -1,0 +1,19 @@
+{
+  "_comment": "Template for a custom MCP server. Replace placeholder values.",
+  "mcpServers": {
+    "your-server-name": {
+      "command": "npx",
+      "args": ["-y", "your-mcp-package"],
+      "env": {
+        "YOUR_API_KEY": "<your-api-key>",
+        "YOUR_CONFIG": "<value>"
+      }
+    },
+
+    "local-python-server": {
+      "_comment": "For a locally running FastMCP server",
+      "url": "http://localhost:8000/sse",
+      "transport": "sse"
+    }
+  }
+}

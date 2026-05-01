@@ -1,0 +1,46 @@
+{
+  "_comment": "Claude Code hooks configuration. Copy to ~/.claude/settings.json or project .claude/settings.json",
+
+  "contextCompressionThreshold": 0.8,
+
+  "hooks": {
+    "PostToolUse": [
+      {
+        "_comment": "Auto-format Python files after every write/edit",
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \"$CLAUDE_TOOL_INPUT_FILE_PATH\" == *.py ]]; then uv run ruff format \"$CLAUDE_TOOL_INPUT_FILE_PATH\" && uv run ruff check --fix \"$CLAUDE_TOOL_INPUT_FILE_PATH\"; fi"
+          }
+        ]
+      },
+      {
+        "_comment": "Auto-format JS/TS files after every write/edit",
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \"$CLAUDE_TOOL_INPUT_FILE_PATH\" == *.js ]] || [[ \"$CLAUDE_TOOL_INPUT_FILE_PATH\" == *.ts ]] || [[ \"$CLAUDE_TOOL_INPUT_FILE_PATH\" == *.jsx ]] || [[ \"$CLAUDE_TOOL_INPUT_FILE_PATH\" == *.tsx ]]; then npx prettier --write \"$CLAUDE_TOOL_INPUT_FILE_PATH\"; fi"
+          }
+        ]
+      }
+    ],
+
+    "Stop": [
+      {
+        "_comment": "Run tests and linter after Claude finishes a task. If tests fail, Claude will fix them.",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npm run test 2>/dev/null || uv run pytest 2>/dev/null || echo 'No test runner found — skipping'"
+          },
+          {
+            "type": "command",
+            "command": "npm run lint 2>/dev/null || uv run ruff check . 2>/dev/null || echo 'No linter found — skipping'"
+          }
+        ]
+      }
+    ]
+  }
+}

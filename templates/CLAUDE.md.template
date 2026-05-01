@@ -1,0 +1,41 @@
+# CLAUDE.md
+
+> Project-specific configuration for Claude Code.
+> Kept minimal by design. Full rules live in AGENTS.md.
+
+## Stack
+[language] + [framework] + [database] — [one-line architecture summary]
+
+## Commands
+```bash
+# Development
+[dev command]        # start dev server
+
+# Quality
+[test command]       # run tests
+[lint command]       # run linter
+[format command]     # format code
+
+# Build
+[build command]      # production build
+```
+
+## Hard Rules
+- Do not start coding without `/plan` approval
+- Do not touch files outside current task scope
+- Do not add features not explicitly requested
+- [Project-specific rule 1]
+- [Project-specific rule 2]
+
+## Key Files
+- `PROJECT_CONSTITUTION.md` — scope and architecture
+- `AGENTS.md` — full rules and workflow
+- `skills/SKILLS_INDEX.md` — available skills
+- `artifacts/architecture.md` — system design
+
+## Agent Roles
+Activate explicitly:
+```
+"Act as [role]. Read agents/[role].md and [task]."
+```
+Roles: product-manager, architect, developer, reviewer, tester, planner, simplifier
