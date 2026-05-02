@@ -1,112 +1,127 @@
 # AI Agent Configuration
 
-Universal configuration repository for AI coding agents (Claude Code, Codex, Qwen, Gemini CLI, Cursor, Copilot, etc.).
+Universal configuration for AI coding agents.
+Works with: Claude Code · Codex · Cursor · Gemini CLI · GitHub Copilot · any LLM
 
-> **How to use:** Point your AI agent to this repository. It will read rules, roles, skills, and workflow automatically.
+---
+
+## ⚡ First Time on a New Project?
+
+Run `/init` — the agent will ask questions and fill in all configs automatically.
+Takes ~3 minutes. After that, everything is ready.
 
 ---
 
 ## Quick Reference
 
-| What | Where |
-|---|---|
-| Roles / Agents | `agents/` |
-| Commands & Workflow | `workflows/commands.md` |
-| Skills | `skills/SKILLS_INDEX.md` |
-| MCP Servers | `mcp/README.md` |
-| Quality Gates | `quality/` |
-| Project Template | `templates/PROJECT_CONSTITUTION.template.md` |
+| What              | Where                                    |
+|-------------------|------------------------------------------|
+| **Init new project** | `/init` → runs `workflows/init.md`    |
+| Roles / Agents    | `agents/`                                |
+| Commands          | `workflows/commands.md`                  |
+| Skills            | `skills/SKILLS_INDEX.md`                 |
+| MCP Servers       | `mcp/README.md`                          |
+| Quality Gates     | `quality/`                               |
+| Project Template  | `templates/PROJECT_CONSTITUTION.template.md` |
 
 ---
 
 ## Core Principles
 
-1. **Minimalism** — every change is as small as possible. Deleting lines is better than adding.
-2. **Root cause, not symptom** — no temporary fixes, only root cause resolution.
-3. **Precision** — touch only what is required. No side effects.
-4. **Plan before coding** — never start implementation without an approved plan.
-5. **Verify, don't assume** — if uncertain, ask. Surface tradeoffs explicitly.
+1. **Minimalism** — every change is as small as possible. Delete > add.
+2. **Root cause, not symptom** — no temporary fixes.
+3. **Precision** — touch only what the task requires. No side effects.
+4. **Plan before coding** — never start without an approved plan.
+5. **Verify, don't assume** — surface tradeoffs explicitly.
 
 ---
 
 ## Hard Rules
 
-- Do not start implementation without a plan approved by the user.
+- Do not start implementation without a user-approved plan.
 - Do not add features beyond what was explicitly requested.
-- Do not refactor code that is not part of the current task.
-- Do not write code style rules — use linters (deterministic, reliable).
-- Do not leave TODOs without a linked task.
-- Do not use temporary fixes (`# type: ignore`, `any`, `pass`).
+- Do not refactor code outside the current task scope.
+- Do not write code style rules — use linters.
+- Do not leave TODOs without a linked task ID.
+- Do not use temporary fixes (`# type: ignore`, `any`, `pass`, `TODO: fix later`).
+- Do not write to production configs without explicit user confirmation.
+- Do not run destructive commands (`rm -rf`, `DROP`, `truncate`) without confirmation.
 
 ---
 
 ## Agent Workflow
 
 ```
-1. Read PROJECT_CONSTITUTION.md (if present in project root)
-2. Read AGENTS.md (this file)
-3. Check SKILLS_INDEX.md for relevant skills
-4. Plan → get approval → implement → verify
+1. Read PROJECT_CONSTITUTION.md  (if absent → run /init first)
+2. Read CLAUDE.md                (project-specific overrides)
+3. Check SKILLS_INDEX.md         (load relevant skills on demand)
+4. /plan → get approval → /code → /review → verify
+5. After task: update CHANGELOG.md, run context-snapshot if session > 30 min
 ```
-
-### Standard Commands
-
-| Command | Action |
-|---|---|
-| `/plan` | Create implementation plan, wait for approval |
-| `/code` | Implement approved plan |
-| `/review` | Code review |
-| `/fix` | Find and fix errors (root cause only) |
-| `/deploy` | Prepare for deployment |
-| `/update-rules` | Update AGENTS.md based on last mistake |
-| `/status` | Project status summary |
-| `/explore` | Analyze repository structure |
-| `/clear` | Start fresh session (use before each new task) |
 
 ---
 
-## Context Compression
+## Standard Commands
 
-- Use `/clear` before each new task — conversation history is not needed.
-- Everything the agent needs is in `AGENTS.md` and the codebase.
-- Keep files under 800 lines — split into modules with `index.md` if larger.
+| Command         | Action                                              | Output                        |
+|-----------------|-----------------------------------------------------|-------------------------------|
+| `/init`         | **Interview + auto-fill all project configs**       | `PROJECT_CONSTITUTION.md`, `CLAUDE.md` |
+| `/plan`         | Create implementation plan, wait for approval       | `plans/YYYY-MM-DD-{task}.md`  |
+| `/code`         | Implement approved plan                             | Code + updated `CHANGELOG.md` |
+| `/review`       | Code review against project standards               | Inline comments + summary     |
+| `/fix`          | Find and fix errors (root cause only)               | Fix + root cause explanation  |
+| `/deploy`       | AES check → prepare deployment checklist            | `deploy/checklist-{date}.md`  |
+| `/update-rules` | Learn from last mistake → patch `AGENTS.md`        | Diff of changes made          |
+| `/status`       | Project status: AES level, open tasks, debt         | Summary table                 |
+| `/explore`      | Analyse repository structure, build mental map      | Tree + key observations       |
+| `/clear`        | End session. Snapshot context, flush history        | —                             |
 
 ---
 
 ## Roles
 
-See `agents/` directory. Activate a role explicitly:
+Activate a role explicitly in your prompt:
 
 > "Act as the Architect agent. Read `agents/architect.md` and design the solution."
+
+Available roles: `product-manager` · `architect` · `developer` · `reviewer` · `tester` · `planner` · `simplifier`
 
 ---
 
 ## Skills
 
-Skills are activated by keywords in the task description, or explicitly:
+Skills load on demand — no token waste by default.
 
 > "Apply the `parsing` skill. Read `skills/parsing/SKILL.md`."
 
-See full index: `skills/SKILLS_INDEX.md`
+See full catalog: `skills/SKILLS_INDEX.md`
 
 ---
 
 ## Quality Gates
 
-All quality checks run automatically via pre-commit hooks.
-See `quality/.pre-commit-config.yaml` for full configuration.
-
+All checks run automatically via pre-commit hooks.
+Config: `quality/.pre-commit-config.yaml`
 Claude Code hooks: `quality/hooks/settings.json`
 
 ---
 
-## AES Compliance Levels
+## AES Compliance
 
-| Level | Criteria |
-|---|---|
-| L1 | PROJECT_CONSTITUTION.md defined |
-| L2 | Implementation plan exists and approved |
-| L3 | Architecture is being followed |
-| L4 | Production ready |
+| Level | Gate                                                    |
+|-------|---------------------------------------------------------|
+| L1    | `PROJECT_CONSTITUTION.md` filled (not template)        |
+| L2    | Implementation plan exists and approved                 |
+| L3    | Architecture documented, ADR-000 exists                 |
+| L4    | Tests pass, linters clean, `CHANGELOG.md` up to date   |
 
-Agent must not advance to L2 without L1 being complete.
+**Agent must not advance to next level without completing the current one.**
+
+---
+
+## Context Budget
+
+- Use `/clear` before each new task — history is ballast.
+- Keep all files under 800 lines — split with `index.md` if larger.
+- At > 60% context used: warn user, suggest `/clear` + continue in new session.
+- Everything the agent needs lives in `AGENTS.md` + codebase — not in chat history.
