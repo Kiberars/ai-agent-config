@@ -78,23 +78,6 @@ Takes ~3 minutes. After that, everything is ready.
 
 ---
 
-## Standard Commands
-
-| Command         | Action                                         | Output                          |
-|-----------------|------------------------------------------------|---------------------------------|
-| `/init`         | Interview + auto-fill all project configs      | `PROJECT_CONSTITUTION.md`, `CLAUDE.md` |
-| `/plan`         | Create implementation plan, wait for approval  | `plans/YYYY-MM-DD-{task}.md`   |
-| `/code`         | Implement approved plan                        | Code + updated `CHANGELOG.md`  |
-| `/review`       | Code review against project standards          | Inline comments + summary      |
-| `/fix`          | Find and fix errors (root cause only)          | Fix + root cause explanation   |
-| `/deploy`       | AES check → deployment checklist              | `deploy/checklist-{date}.md`   |
-| `/update-rules` | Learn from mistake → patch `AGENTS.md`        | Diff of changes                |
-| `/status`       | AES level, open tasks, tech debt              | Summary table                  |
-| `/explore`      | Analyse repository structure                   | Tree + key observations        |
-| `/clear`        | End session. Snapshot context, flush history   | —                              |
-
----
-
 ## Roles
 
 Activate explicitly: `"Act as the Architect agent. Read agents/architect.md."`
