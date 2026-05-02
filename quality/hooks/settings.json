@@ -1,46 +1,79 @@
 {
-  "_comment": "Claude Code hooks configuration. Copy to ~/.claude/settings.json or project .claude/settings.json",
-
-  "contextCompressionThreshold": 0.8,
-
-  "hooks": {
-    "PostToolUse": [
-      {
-        "_comment": "Auto-format Python files after every write/edit",
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "if [[ \"$CLAUDE_TOOL_INPUT_FILE_PATH\" == *.py ]]; then uv run ruff format \"$CLAUDE_TOOL_INPUT_FILE_PATH\" && uv run ruff check --fix \"$CLAUDE_TOOL_INPUT_FILE_PATH\"; fi"
-          }
-        ]
+  "hooks": [
+    {
+      "type": "PreToolUse",
+      "description": "Block destructive operations without explicit user confirmation",
+      "matcher": {
+        "tool_name": "bash"
       },
-      {
-        "_comment": "Auto-format JS/TS files after every write/edit",
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "if [[ \"$CLAUDE_TOOL_INPUT_FILE_PATH\" == *.js ]] || [[ \"$CLAUDE_TOOL_INPUT_FILE_PATH\" == *.ts ]] || [[ \"$CLAUDE_TOOL_INPUT_FILE_PATH\" == *.jsx ]] || [[ \"$CLAUDE_TOOL_INPUT_FILE_PATH\" == *.tsx ]]; then npx prettier --write \"$CLAUDE_TOOL_INPUT_FILE_PATH\"; fi"
-          }
-        ]
-      }
-    ],
-
-    "Stop": [
-      {
-        "_comment": "Run tests and linter after Claude finishes a task. If tests fail, Claude will fix them.",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "npm run test 2>/dev/null || uv run pytest 2>/dev/null || echo 'No test runner found — skipping'"
-          },
-          {
-            "type": "command",
-            "command": "npm run lint 2>/dev/null || uv run ruff check . 2>/dev/null || echo 'No linter found — skipping'"
-          }
-        ]
-      }
-    ]
-  }
+      "rules": [
+        {
+          "name": "block_destructive_bash",
+          "description": "Intercept dangerous shell commands",
+          "patterns": [
+            "rm\\s+-rf",
+            "DROP\\s+(TABLE|DATABASE|SCHEMA)",
+            "TRUNCATE\\s+TABLE",
+            "DELETE\\s+FROM\\s+\\w+\\s*;",
+            "git\\s+push\\s+.*--force",
+            "git\\s+reset\\s+--hard",
+            "> /dev/null",
+            "chmod\\s+777",
+            "sudo\\s+rm",
+            "pkill\\s+-9",
+            ":(){:|:&};:"
+          ],
+          "action": "pause",
+          "message": "⚠️  Potentially destructive command detected:\n\n  {command}\n\nConfirm you want to run this? (yes / no)"
+        }
+      ]
+    },
+    {
+      "type": "PreToolUse",
+      "description": "Warn before writing to production config files",
+      "matcher": {
+        "tool_name": "write_file"
+      },
+      "rules": [
+        {
+          "name": "protect_prod_configs",
+          "description": "Ask before touching sensitive files",
+          "patterns": [
+            "\\.env\\.prod",
+            "\\.env\\.production",
+            "production\\.ya?ml",
+            "prod\\.config\\.",
+            "secrets\\.",
+            "\\.pem$",
+            "\\.key$"
+          ],
+          "action": "pause",
+          "message": "⚠️  About to write to a production/secrets file:\n\n  {path}\n\nConfirm? (yes / no)"
+        }
+      ]
+    },
+    {
+      "type": "PostToolUse",
+      "description": "Auto-format files after edit",
+      "matcher": {
+        "tool_name": "write_file"
+      },
+      "command": "pre-commit run --files {file_path} 2>/dev/null || true",
+      "timeout_ms": 10000
+    },
+    {
+      "type": "Stop",
+      "description": "Run tests after every task completion",
+      "command": "npm test --passWithNoTests 2>/dev/null || python -m pytest -q 2>/dev/null || echo 'No test runner detected'",
+      "timeout_ms": 60000,
+      "on_failure": "warn"
+    },
+    {
+      "type": "Stop",
+      "description": "Remind agent to update CHANGELOG",
+      "check": "git diff --name-only HEAD | grep -q CHANGELOG.md || echo 'REMINDER: Update CHANGELOG.md before closing the task.'",
+      "timeout_ms": 5000,
+      "on_failure": "warn"
+    }
+  ]
 }
