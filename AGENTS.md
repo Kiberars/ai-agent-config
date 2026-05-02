@@ -14,15 +14,15 @@ Takes ~3 minutes. After that, everything is ready.
 
 ## Quick Reference
 
-| What              | Where                                    |
-|-------------------|------------------------------------------|
-| **Init new project** | `/init` → runs `workflows/init.md`    |
-| Roles / Agents    | `agents/`                                |
-| Commands          | `workflows/commands.md`                  |
-| Skills            | `skills/SKILLS_INDEX.md`                 |
-| MCP Servers       | `mcp/README.md`                          |
-| Quality Gates     | `quality/`                               |
-| Project Template  | `templates/PROJECT_CONSTITUTION.template.md` |
+| What                 | Where                                        |
+|----------------------|----------------------------------------------|
+| **Init new project** | `/init` → runs `workflows/init.md`           |
+| Roles / Agents       | `agents/`                                    |
+| Commands             | `workflows/commands.md`                      |
+| Skills               | `skills/SKILLS_INDEX.md`                     |
+| MCP Servers          | `mcp/README.md`                              |
+| Quality Gates        | `quality/`                                   |
+| Project Template     | `templates/PROJECT_CONSTITUTION.template.md` |
 
 ---
 
@@ -43,7 +43,7 @@ Takes ~3 minutes. After that, everything is ready.
 - Do not refactor code outside the current task scope.
 - Do not write code style rules — use linters.
 - Do not leave TODOs without a linked task ID.
-- Do not use temporary fixes (`# type: ignore`, `any`, `pass`, `TODO: fix later`).
+- Do not use temporary fixes (`# type: ignore`, `any`, `pass`).
 - Do not write to production configs without explicit user confirmation.
 - Do not run destructive commands (`rm -rf`, `DROP`, `truncate`) without confirmation.
 
@@ -78,29 +78,41 @@ Takes ~3 minutes. After that, everything is ready.
 
 ---
 
+## Standard Commands
+
+| Command         | Action                                         | Output                          |
+|-----------------|------------------------------------------------|---------------------------------|
+| `/init`         | Interview + auto-fill all project configs      | `PROJECT_CONSTITUTION.md`, `CLAUDE.md` |
+| `/plan`         | Create implementation plan, wait for approval  | `plans/YYYY-MM-DD-{task}.md`   |
+| `/code`         | Implement approved plan                        | Code + updated `CHANGELOG.md`  |
+| `/review`       | Code review against project standards          | Inline comments + summary      |
+| `/fix`          | Find and fix errors (root cause only)          | Fix + root cause explanation   |
+| `/deploy`       | AES check → deployment checklist              | `deploy/checklist-{date}.md`   |
+| `/update-rules` | Learn from mistake → patch `AGENTS.md`        | Diff of changes                |
+| `/status`       | AES level, open tasks, tech debt              | Summary table                  |
+| `/explore`      | Analyse repository structure                   | Tree + key observations        |
+| `/clear`        | End session. Snapshot context, flush history   | —                              |
+
+---
+
 ## Roles
 
-Activate a role explicitly in your prompt:
+Activate explicitly: `"Act as the Architect agent. Read agents/architect.md."`
 
-> "Act as the Architect agent. Read `agents/architect.md` and design the solution."
-
-Available roles: `product-manager` · `architect` · `developer` · `reviewer` · `tester` · `planner` · `simplifier`
+Available: `product-manager` · `architect` · `developer` · `reviewer` · `tester` · `planner` · `simplifier`
 
 ---
 
 ## Skills
 
-Skills load on demand — no token waste by default.
+Load on demand: `"Apply the parsing skill. Read skills/parsing/SKILL.md."`
 
-> "Apply the `parsing` skill. Read `skills/parsing/SKILL.md`."
-
-See full catalog: `skills/SKILLS_INDEX.md`
+See catalog: `skills/SKILLS_INDEX.md`
 
 ---
 
 ## Quality Gates
 
-All checks run automatically via pre-commit hooks.
 Config: `quality/.pre-commit-config.yaml`
 Claude Code hooks: `quality/hooks/settings.json`
 
@@ -108,20 +120,19 @@ Claude Code hooks: `quality/hooks/settings.json`
 
 ## AES Compliance
 
-| Level | Gate                                                    |
-|-------|---------------------------------------------------------|
-| L1    | `PROJECT_CONSTITUTION.md` filled (not template)        |
-| L2    | Implementation plan exists and approved                 |
-| L3    | Architecture documented, ADR-000 exists                 |
-| L4    | Tests pass, linters clean, `CHANGELOG.md` up to date   |
+| Level | Gate                                                     |
+|-------|----------------------------------------------------------|
+| L1    | `PROJECT_CONSTITUTION.md` filled (not template)         |
+| L2    | Implementation plan exists and approved                  |
+| L3    | Architecture documented, ADR-000 exists                  |
+| L4    | Tests pass, linters clean, `CHANGELOG.md` up to date    |
 
-**Agent must not advance to next level without completing the current one.**
+Agent must not advance to next level without completing the current one.
 
 ---
 
 ## Context Budget
 
 - Use `/clear` before each new task — history is ballast.
-- Keep all files under 800 lines — split with `index.md` if larger.
+- Keep all files under 800 lines.
 - At > 60% context used: warn user, suggest `/clear` + continue in new session.
-- Everything the agent needs lives in `AGENTS.md` + codebase — not in chat history.
